@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Shelf Life Calculator</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+			h1 {
+				margin: 0;
+				padding: 0;
+				font-size: 2em;
+			}
+
+      body {
+        font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
+          "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2em;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 3em;
+      }
+
+      label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+        font-size: 1rem;
+				font-weight: bold;
+      }
+
+      .row {
+        display: flex;
+        gap: 3em;
+      }
+
+      input {
+        padding: 0.75rem;
+        width: 100%;
+        font-size: 1.5rem;
+				border: solid black 1px;
+				color: inherit;
+      }
+
+			input:focus {
+				border: solid blue 1px;
+				outline: none;
+			}
+
+			label:focus-within {
+				color: blue;
+			}
+
+			input[readonly] {
+				border: none;
+				outline: none;
+				padding: 0;
+			}
+
+			.large {
+				font-size: 2.5rem;
+			}
+    </style>
+  </head>
+  <body>
+    <h1>Shelf Life Calculator</h1>
+    <form onsubmit="return false;">
+      <label>
+        Today
+        <input id="today" type="text" readonly />
+      </label>
+      <div class="row">
+        <label>
+          Prod. Date
+          <input id="prod" type="text" inputmode="decimal" />
+        </label>
+        <label>
+          Exp. Date
+          <input id="exp" type="text" inputmode="decimal" />
+        </label>
+      </div>
+      <label>
+        Shelf Life
+        <input id="life" class="large" type="text" readonly />
+      </label>
+      <div class="row">
+        <label>
+          Total Days
+          <input id="totaldays" type="text" readonly />
+        </label>
+        <label>
+          Rem. Days
+          <input id="remdays" type="text" readonly />
+        </label>
+      </div>
+    </form>
+    <script type="module">
+      const id = (s) => document.getElementById(s);
+
+      const event = (el, ev, cb) => el.addEventListener(ev, cb);
+
+      const inputEvent = (el, cb) =>
+        el.addEventListener("input", (x) => cb(x.target.value));
+
+      const dateStr = (date) =>
+        date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
+
+      const strDate = (s) => {
+        let x = s.split(".");
+        if (x.length < 3) return null;
+
+        let day = parseInt(x[0]);
+        let month = parseInt(x[1]);
+        let year = parseInt(x[2]);
+
+        if (year < 100) year += 2000;
+        let date = new Date(year, month - 1, day);
+        if (date.toString() == "Invalid Date") return null;
+        return date;
+      };
+
+      let today = id("today");
+      let prod = id("prod");
+      let exp = id("exp");
+      let life = id("life");
+      let totaldays = id("totaldays");
+      let remdays = id("remdays");
+
+      let state = {
+        prod: null,
+        exp: null,
+      };
+
+      const stateUpd = () => {
+        try {
+          state.prod = strDate(prod.value);
+        } catch (e) {
+          state.prod = null;
+        }
+
+        try {
+          state.exp = strDate(exp.value);
+        } catch (e) {
+          state.exp = null;
+        }
+
+        if (state.prod == null || state.exp == null) {
+          life.value = "...";
+          totaldays.value = "...";
+          remdays.value = "...";
+          return;
+        }
+
+        let today = new Date();
+
+        let totalDays = (state.exp - state.prod) / (3600 * 24 * 1000);
+        let remainingDays = (state.exp - today) / (3600 * 24 * 1000);
+        remainingDays = Math.max(0, remainingDays);
+
+        let shelfLife = totalDays != 0 ? (remainingDays * 100) / totalDays : 0;
+        life.value = shelfLife.toFixed(2) + " %";
+        totaldays.value = totalDays.toFixed(0) + " days";
+        remdays.value = remainingDays.toFixed(0) + " days";
+      };
+      stateUpd();
+
+      today.value = dateStr(new Date());
+
+      inputEvent(prod, stateUpd);
+      inputEvent(exp, stateUpd);
+    </script>
+  </body>
+</html>
