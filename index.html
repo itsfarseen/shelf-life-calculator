@@ -171,7 +171,7 @@
         let shelfLife = totalDays != 0 ? (remainingDays * 100) / totalDays : 0;
         life.value = shelfLife.toFixed(2) + " %";
         totaldays.value = totalDays.toFixed(0) + " days";
-        remdays.value = remainingDays.toFixed(0) + " days";
+        remdays.value = remainingDays.toFixed(2) + " days";
       };
       stateUpd();
 
