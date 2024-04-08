@@ -164,6 +164,7 @@
         let today = new Date();
 
         let totalDays = (state.exp - state.prod) / (3600 * 24 * 1000);
+        totalDays = Math.max(0, totalDays);
         let remainingDays = (state.exp - today) / (3600 * 24 * 1000);
         remainingDays = Math.max(0, remainingDays);
 
